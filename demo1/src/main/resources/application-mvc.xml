@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context  https://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc  https://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/tx  https://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd">
+
+    <!--springmvc的注解开关-->
+    <context:component-scan base-package="com.moxiongfei.controller">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+    <!--springmvc的驱动开关-->
+    <mvc:annotation-driven conversion-service="conversionService"/>
+    <!--springmvc的视图解析器-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/view/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+    <!--处理器（即数据转换器）-->
+    <bean id="myDateConverter" class="com.moxiongfei.converter.DateConverter"/>
+    <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+        <property name="converters">
+            <set>
+                <!--<bean class="com.moxiongfei.converter.DateConverter"/>--><!--如果类型转换器没有注册，则使用bean标签，如果注册了，则使用下面的ref标签即可-->
+                <ref bean="myDateConverter"/>
+            </set>
+        </property>
+    </bean>
+    <!--拦截器-->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <!--mapping中填url-->
+            <mvc:mapping path="/user/auth/**"/><!--这里拦截的是/user/auth/**的请求-->
+            <bean class="com.moxiongfei.interceptor.UserInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+    <!--默认的资源处理器-->
+    <!--<mvc:default-servlet-handler />-->
+    <!--resources静态资源处理器-->
+    <mvc:resources mapping="/img/**" location="/WEB-INF/img/"/>
+    <mvc:resources mapping="/img2/**" location="classpath:/img/"/>
+    <mvc:resources mapping="/img3/**" location="file:F://wallpaper/图标/哔哩哔哩/"/>
+    <!--文件上传的配置，注意：id一定要等于multipartResolver-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="512000"/>                        <!--限制图片大小为500k-->
+    </bean>
+</beans>

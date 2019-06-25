@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context  https://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc  https://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/tx  https://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd">
+
+    <!--spring的注解开关-->
+    <context:component-scan base-package="com.moxiongfei">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/><!--通过注解去排除扫描的类，当类上有Controller这个注解就不会被注册到Spring容器-->
+    </context:component-scan>
+
+    <!-- bean definitions here -->
+    <!--来源于mybatis对spring的支持包-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--<property name="configLocation" value="classpath:mybatis.xml"/>--><!--如有需求，可以新增加一个mybatis.xml，并在里面配置懒加载，二级缓存等-->
+        <property name="typeAliasesPackage" value="com.moxiongfei.bean"/><!--配置mybatie返回类型的别名-->
+        <property name="dataSource" ref="datasource"/>
+    </bean>
+
+    <bean id="datasource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="com.mysql.jdbc.Driver"/>
+        <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/mydb2?characterEncoding=utf-8"/>
+        <property name="user" value="root"/>
+        <property name="password" value="123456"/>
+    </bean>
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--扫描包-->
+        <property name="basePackage" value="com.moxiongfei.mapper"/>
+        <!--配置工厂-->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+    </bean>
+
+    <!--事务支持-->
+    <!--<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="datasource"/>
+    </bean>-->
+    <!--事务驱动的开关-->
+    <!--<tx:annotation-driven transaction-manager="txManager"/>-->
+
+</beans>
